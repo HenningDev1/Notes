@@ -1,0 +1,187 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:Notes"
+        x:Class="Notes.MainWindow"
+        Title="Notes"
+        Width="460" Height="540"
+        MinWidth="150" MinHeight="120"
+        SystemDecorations="None"
+        Background="Transparent"
+        TransparencyLevelHint="Transparent"
+        FontFamily="{DynamicResource AppFont}"
+        Foreground="{DynamicResource TextBrush}">
+
+  <Panel>
+    <!-- The visible, rounded window. The 6px margin leaves room for the shadow. -->
+    <Border x:Name="Shell" Margin="6" CornerRadius="14" ClipToBounds="True"
+            Background="{DynamicResource BgBrush}"
+            BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
+            BoxShadow="0 4 16 0 #38000000">
+      <Grid RowDefinitions="38,*">
+
+        <!-- Title bar (drag to move, double-click to toggle slim/normal) -->
+        <Grid x:Name="TitleBar" Background="Transparent" ColumnDefinitions="Auto,*,Auto" Margin="10,0,6,0">
+          <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center" IsHitTestVisible="False">
+            <ContentControl x:Name="LogoHost" />
+            <TextBlock x:Name="AppTitle" Text="Notes" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center" />
+          </StackPanel>
+          <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="1" VerticalAlignment="Center">
+            <Button x:Name="NewBtn" Classes="icon" Content="&#xE710;" ToolTip.Tip="New note (Ctrl+N)" />
+            <Button x:Name="ShapeBtn" Classes="icon" Content="&#xE740;" ToolTip.Tip="Window shape" />
+            <Button x:Name="PinBtn" Classes="icon" Content="&#xE718;" ToolTip.Tip="Keep on top" />
+            <Button x:Name="SettingsBtn" Classes="icon" Content="&#xE713;" ToolTip.Tip="Settings" />
+            <Button x:Name="MinBtn" Classes="icon" Content="&#xE921;" FontSize="10" ToolTip.Tip="Minimize" />
+            <Button x:Name="CloseBtn" Classes="icon close" Content="&#xE8BB;" FontSize="10" ToolTip.Tip="Hide (Esc)" />
+          </StackPanel>
+        </Grid>
+
+        <!-- Main content: sidebar + editor -->
+        <Grid x:Name="MainArea" Grid.Row="1" ColumnDefinitions="200,*">
+
+          <Border x:Name="Sidebar" Background="{DynamicResource PanelBrush}"
+                  BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,1,1,0">
+            <Grid RowDefinitions="Auto,Auto,*" Margin="8">
+              <TextBox x:Name="SearchBox" Classes="field" Watermark="Search" />
+              <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="0,6,0,4">
+                <ComboBox x:Name="CategoryFilter" Classes="field" HorizontalAlignment="Stretch" />
+                <Button x:Name="AddCategoryBtn" Grid.Column="1" Classes="icon" Content="&#xE8F4;"
+                        Margin="4,0,0,0" ToolTip.Tip="New category" />
+              </Grid>
+              <ListBox x:Name="NoteList" Grid.Row="2" Classes="notes">
+                <ListBox.ItemTemplate>
+                  <DataTemplate x:DataType="local:NoteItem">
+                    <StackPanel Spacing="1">
+                      <TextBlock Text="{Binding Display}" FontWeight="SemiBold" FontSize="13" TextTrimming="CharacterEllipsis" />
+                      <TextBlock Text="{Binding Subtitle}" FontSize="11" Foreground="{DynamicResource SubtleBrush}" TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+                  </DataTemplate>
+                </ListBox.ItemTemplate>
+              </ListBox>
+            </Grid>
+          </Border>
+
+          <!-- Editor -->
+          <Grid x:Name="EditorArea" Grid.Column="1" RowDefinitions="Auto,Auto,Auto,*" Margin="16,8,12,10">
+            <!-- Compact picker shown instead of the sidebar when the window is slim -->
+            <ComboBox x:Name="NotePicker" Classes="field" HorizontalAlignment="Stretch" Margin="0,0,0,8" IsVisible="False">
+              <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="local:NoteItem">
+                  <TextBlock Text="{Binding Display}" TextTrimming="CharacterEllipsis" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+
+            <TextBox x:Name="TitleBox" Grid.Row="1" Classes="plain" FontSize="20" FontWeight="Bold" Watermark="Title" />
+
+            <WrapPanel x:Name="MetaRow" Grid.Row="2" Margin="0,6,0,8" Orientation="Horizontal">
+              <ComboBox x:Name="CategoryBox" Classes="field" MinWidth="96" Margin="0,0,6,4" ToolTip.Tip="Category" />
+              <ComboBox x:Name="FormatBox" Classes="field" MinWidth="70" Margin="0,0,6,4" ToolTip.Tip="Save as" />
+              <Button x:Name="LockBtn" Classes="icon" Content="&#xE72E;" Margin="0,0,0,4" ToolTip.Tip="Password protection" />
+              <Button x:Name="ExportBtn" Classes="icon" Content="&#xE74E;" Margin="0,0,0,4" ToolTip.Tip="Export a copy…" />
+              <Button x:Name="DeleteBtn" Classes="icon" Content="&#xE74D;" Margin="0,0,0,4" ToolTip.Tip="Move to trash" />
+            </WrapPanel>
+
+            <TextBox x:Name="BodyBox" Grid.Row="3" Classes="plain" AcceptsReturn="True" AcceptsTab="True"
+                     TextWrapping="Wrap" FontSize="{DynamicResource EditorFontSize}"
+                     Watermark="Start typing…" VerticalContentAlignment="Top" />
+
+            <!-- Shown when a password-protected note is closed -->
+            <StackPanel x:Name="LockedPanel" Grid.Row="3" IsVisible="False" Spacing="10"
+                        VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="260">
+              <TextBlock Text="&#xE72E;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="30"
+                         HorizontalAlignment="Center" Foreground="{DynamicResource AccentBrush}" />
+              <TextBlock Text="This note is locked" FontWeight="SemiBold" HorizontalAlignment="Center" />
+              <TextBox x:Name="UnlockBox" Classes="field" PasswordChar="•" Watermark="Password" />
+              <TextBlock x:Name="UnlockError" Foreground="#FF453A" FontSize="12" IsVisible="False"
+                         Text="Wrong password" HorizontalAlignment="Center" />
+              <Button x:Name="UnlockBtn" Classes="pill primary" Content="Unlock" HorizontalAlignment="Stretch"
+                      HorizontalContentAlignment="Center" />
+            </StackPanel>
+          </Grid>
+        </Grid>
+
+        <!-- Settings overlay -->
+        <Border x:Name="SettingsPanel" Grid.Row="1" IsVisible="False" Background="{DynamicResource BgBrush}">
+          <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="18,4,18,18" MaxWidth="440">
+              <TextBlock Text="Settings" FontSize="20" FontWeight="Bold" />
+
+              <TextBlock Classes="h" Text="APPEARANCE" />
+              <TextBlock Text="Mode" FontSize="12" Margin="0,0,0,4" />
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <Button x:Name="LightBtn" Classes="pill" Content="Light" />
+                <Button x:Name="DarkBtn" Classes="pill" Content="Dark" />
+              </StackPanel>
+
+              <TextBlock Text="Accent" FontSize="12" Margin="0,12,0,4" />
+              <WrapPanel x:Name="Swatches" />
+              <TextBox x:Name="AccentHex" Classes="field" Watermark="Custom accent, e.g. #FF9F0A" Margin="0,6,0,0" />
+
+              <TextBlock Text="Background colour (empty = default)" FontSize="12" Margin="0,12,0,4" />
+              <TextBox x:Name="BgHex" Classes="field" Watermark="#F9F9FB" />
+              <TextBlock Text="Text colour (empty = default)" FontSize="12" Margin="0,10,0,4" />
+              <TextBox x:Name="TextHex" Classes="field" Watermark="#1C1C1E" />
+
+              <TextBlock x:Name="OpacityLabel" Text="Window opacity" FontSize="12" Margin="0,12,0,0" />
+              <Slider x:Name="OpacitySlider" Minimum="0.4" Maximum="1" />
+
+              <TextBlock Text="Font" FontSize="12" Margin="0,4,0,4" />
+              <ComboBox x:Name="FontBox" Classes="field" HorizontalAlignment="Stretch" />
+              <TextBlock x:Name="FontSizeLabel" Text="Text size" FontSize="12" Margin="0,12,0,0" />
+              <Slider x:Name="FontSizeSlider" Minimum="11" Maximum="24" TickFrequency="1" IsSnapToTickEnabled="True" />
+
+              <TextBlock Classes="h" Text="WINDOW SHAPE" />
+              <TextBlock Text="Drag any edge or corner to resize freely, or pick a preset:" FontSize="12"
+                         Foreground="{DynamicResource SubtleBrush}" TextWrapping="Wrap" Margin="0,0,0,6" />
+              <WrapPanel x:Name="ShapePresets" />
+
+              <TextBlock Classes="h" Text="NOTES" />
+              <TextBlock Text="Default format for new notes" FontSize="12" Margin="0,0,0,4" />
+              <ComboBox x:Name="DefaultFormatBox" Classes="field" HorizontalAlignment="Stretch" />
+              <TextBlock Text="Notes folder" FontSize="12" Margin="0,12,0,4" />
+              <Grid ColumnDefinitions="*,Auto">
+                <TextBox x:Name="FolderBox" Classes="field" IsReadOnly="True" />
+                <Button x:Name="BrowseBtn" Grid.Column="1" Classes="pill" Content="Change…" Margin="6,0,0,0" />
+              </Grid>
+              <TextBlock Text="Global hotkey" FontSize="12" Margin="0,12,0,4" />
+              <TextBox x:Name="HotkeyBox" Classes="field" IsReadOnly="True" Cursor="Hand" />
+              <TextBlock x:Name="HotkeyStatus" FontSize="11" Foreground="{DynamicResource SubtleBrush}" TextWrapping="Wrap" Margin="0,4,0,0" />
+              <TextBlock Text="New note: Ctrl + N   ·   Lock: Ctrl + L   ·   Hide: Esc"
+                         FontSize="12" Foreground="{DynamicResource SubtleBrush}" TextWrapping="Wrap" Margin="0,10,0,0" />
+
+              <Button x:Name="DoneBtn" Classes="pill primary" Content="Done" HorizontalAlignment="Right" Margin="0,18,0,0" />
+            </StackPanel>
+          </ScrollViewer>
+        </Border>
+
+        <!-- Generic prompt overlay (passwords, category names) -->
+        <Border x:Name="PromptPanel" Grid.RowSpan="2" IsVisible="False" Background="#66000000">
+          <Border Background="{DynamicResource BgBrush}" CornerRadius="14" Padding="18" Margin="14"
+                  MaxWidth="320" VerticalAlignment="Center" BoxShadow="0 8 24 0 #40000000">
+            <StackPanel Spacing="10">
+              <TextBlock x:Name="PromptTitle" FontWeight="SemiBold" FontSize="15" TextWrapping="Wrap" />
+              <TextBlock x:Name="PromptHint" FontSize="12" Foreground="{DynamicResource SubtleBrush}" TextWrapping="Wrap" />
+              <TextBox x:Name="PromptInput" Classes="field" />
+              <TextBox x:Name="PromptConfirm" Classes="field" PasswordChar="•" Watermark="Repeat password" />
+              <TextBlock x:Name="PromptError" Foreground="#FF453A" FontSize="12" IsVisible="False" />
+              <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6">
+                <Button x:Name="PromptCancel" Classes="pill" Content="Cancel" />
+                <Button x:Name="PromptOk" Classes="pill primary" Content="OK" />
+              </StackPanel>
+            </StackPanel>
+          </Border>
+        </Border>
+      </Grid>
+    </Border>
+
+    <!-- Invisible resize grips on every edge and corner -->
+    <Border Tag="W"  Width="8" HorizontalAlignment="Left"  Background="Transparent" Cursor="SizeWestEast" Classes="grip" />
+    <Border Tag="E"  Width="8" HorizontalAlignment="Right" Background="Transparent" Cursor="SizeWestEast" Classes="grip" />
+    <Border Tag="N"  Height="6" VerticalAlignment="Top"    Background="Transparent" Cursor="SizeNorthSouth" Classes="grip" />
+    <Border Tag="S"  Height="8" VerticalAlignment="Bottom" Background="Transparent" Cursor="SizeNorthSouth" Classes="grip" />
+    <Border Tag="NW" Width="14" Height="14" HorizontalAlignment="Left"  VerticalAlignment="Top"    Background="Transparent" Cursor="TopLeftCorner" Classes="grip" />
+    <Border Tag="NE" Width="14" Height="14" HorizontalAlignment="Right" VerticalAlignment="Top"    Background="Transparent" Cursor="TopRightCorner" Classes="grip" />
+    <Border Tag="SW" Width="14" Height="14" HorizontalAlignment="Left"  VerticalAlignment="Bottom" Background="Transparent" Cursor="BottomLeftCorner" Classes="grip" />
+    <Border Tag="SE" Width="14" Height="14" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="Transparent" Cursor="BottomRightCorner" Classes="grip" />
+  </Panel>
+</Window>
