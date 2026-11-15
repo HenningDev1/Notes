@@ -1,11 +1,13 @@
 using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Shapes;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 
@@ -53,6 +55,24 @@ public partial class MainWindow : Window
         ApplyTheme();
         Reload();
         NewDraft();
+        if (Environment.GetEnvironmentVariable("NOTES_SCREENSHOT") is { Length: > 0 } shot)
+            Opened += (_, _) => CaptureAndExit(shot);
+    }
+
+    /// Renders the window (transparent rounded corners included) to a PNG, then quits. Used for README screenshots.
+    private void CaptureAndExit(string path)
+    {
+        if (_all.Count > 0) Open(_all[0]);
+        DispatcherTimer.RunOnce(() =>
+        {
+            const double scale = 1;
+            var size = Bounds.Size;
+            using var bmp = new RenderTargetBitmap(
+                new PixelSize((int)(size.Width * scale), (int)(size.Height * scale)), new Vector(96, 96));
+            bmp.Render((Visual)Content!);
+            bmp.Save(path);
+            (Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.Shutdown();
+        }, TimeSpan.FromSeconds(1.5));
     }
 
     // ---------- Window chrome, shape and hotkey ----------
@@ -268,7 +288,7 @@ public partial class MainWindow : Window
         MainArea.ColumnDefinitions[0].Width = narrow ? new GridLength(0) : new GridLength(Math.Clamp(w * 0.32, 180, 260));
         Sidebar.IsVisible = !narrow;
         NotePicker.IsVisible = narrow && h > 220;
-        AppTitle.IsVisible = !tiny;
+        AppTitle.IsVisible = w >= 300;   // the title bar buttons need the room on slim windows
         ShapeBtn.IsVisible = w >= 200;
         PinBtn.IsVisible = !tiny;
         MetaRow.IsVisible = h > 190;

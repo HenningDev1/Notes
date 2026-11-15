@@ -14,7 +14,7 @@ internal static class Program
             return;
         }
         using var mutex = new Mutex(true, "Notes.QuickCapture.SingleInstance", out bool isNew);
-        if (!isNew) return;
+        if (!isNew && Environment.GetEnvironmentVariable("NOTES_SCREENSHOT") == null) return;
 
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args, Avalonia.Controls.ShutdownMode.OnExplicitShutdown);
     }

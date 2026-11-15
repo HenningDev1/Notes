@@ -47,8 +47,11 @@ public static class Store
     public const string LockedExt = ".locked";
     public const string DefaultCategory = "General";
 
-    public static string AppDir { get; } =
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Notes");
+    /// Optional override (used for screenshots or a portable setup): keeps settings and notes in one folder.
+    private static readonly string? DataOverride = Environment.GetEnvironmentVariable("NOTES_DATA_DIR");
+
+    public static string AppDir { get; } = DataOverride
+        ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Notes");
     private static string SettingsPath => Path.Combine(AppDir, "settings.json");
     private static readonly JsonSerializerOptions Json = new() { WriteIndented = true };
 
@@ -76,7 +79,8 @@ public static class Store
     public static string Root(Settings s)
     {
         var root = string.IsNullOrWhiteSpace(s.NotesFolder)
-            ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Notes")
+            ? (DataOverride != null ? Path.Combine(DataOverride, "notes")
+                : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Notes"))
             : s.NotesFolder;
         Directory.CreateDirectory(Path.Combine(root, DefaultCategory));
         return root;

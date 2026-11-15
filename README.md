@@ -1,42 +1,87 @@
-# Notes
+<p align="center">
+  <img src="docs/logo.png" width="72" alt="Notes logo" />
+</p>
 
-Quick-capture notes for Windows, built with C# and Avalonia 11.
+<h1 align="center">Notes</h1>
 
-- **Global hotkey** (default `Ctrl+Alt+N`, change it in Settings) opens a fresh note; `Esc` hides it. Tray icon menu: Open, New note, Quit.
-- **Any window shape**: drag any edge or corner. It works from a thin full-height strip up to full screen,
-  and the layout adapts (the sidebar turns into a dropdown when the window is narrow). Presets: Slim left/right,
-  Strip top/bottom, Compact, Normal, Fill screen. Double-click the title bar to switch between slim and normal.
-- **Formats**: md, txt, html, json, csv, log. Notes are plain files in `Documents\Notes\<Category>\`, and you can
-  change the folder in Settings. You can export a copy anywhere.
-- **Categories** are subfolders. Make one with the folder+ button next to the category filter.
-- **Password protection**: AES-256-GCM, with the key derived using PBKDF2-SHA256 (310k iterations). Protected notes are saved
-  as `name.md.locked`. Lock again with `Ctrl+L`. If you forget the password, the note can't be recovered.
-- **Themes**: Light/Dark, accent presets or a custom hex color, custom background and text colors, window opacity,
-  font (Inter by default) and text size.
-- Deleted notes go to the Windows Recycle Bin.
+<p align="center">
+  A fast, quiet note-taking app for Windows. Press a hotkey, type, done.<br />
+  Your notes stay plain files on your own PC, in whatever window shape suits your screen.
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/light.png" height="420" alt="Notes in a normal window with the light theme" />
+  &nbsp;
+  <img src="docs/screenshots/dark-slim.png" height="420" alt="Notes as a slim strip with the dark theme" />
+</p>
+
+## Why Notes?
+
+Most note apps want an account, a sync service and a minute of your time. Notes just opens a small box when you
+press `Ctrl` + `Alt` + `N`. Then it gets out of the way again. Every note is a normal file in a normal folder, so you
+can open, back up or sync your notes with any tool you like.
+
+## Features
+
+- **Instant capture:** a global hotkey opens a fresh note from anywhere. Notes save automatically as you type.
+  You can change the hotkey in Settings.
+- **Any shape you like:** drag any edge or corner. Notes works as a thin strip down the side of your screen,
+  a wide bar along the top, a normal window, or full screen. The layout adapts to fit. One-click presets are built in.
+- **Plain files:** save notes as Markdown, plain text, HTML, JSON, CSV or log files. They live in
+  `Documents\Notes`, and you can choose a different folder.
+- **Categories:** sort notes into categories, then filter and search across all of them.
+- **Password protection:** lock any note with a password. It's encrypted with AES-256-GCM, using a key derived
+  with PBKDF2-SHA256 (310,000 iterations).
+- **Your colors:** light and dark modes, accent presets or any hex color, custom background and text colors,
+  window opacity, font and text size.
+- **Small comforts:** keep the window on top, see notes in the system tray, and restore deleted notes from the Recycle Bin.
 
 ## Install
 
-Download `NotesSetup.exe` from the Releases page and run it. It installs for your user only (no admin needed),
-adds Notes to the Start menu and Windows Search, and can start it with Windows.
-Uninstall from Settings > Apps. Your notes and settings are kept.
+1. Download **`NotesSetup.exe`** from the [latest release](../../releases/latest).
+2. Run it. No admin rights are needed, and .NET doesn't need to be installed.
+3. Type "Notes" in the Start menu, or press `Ctrl` + `Alt` + `N`.
+
+Setup can start Notes with Windows. To uninstall, use **Settings → Apps**. Your notes and settings are kept.
+
+> Windows SmartScreen may warn you about the installer because it isn't code-signed.
+> Click **More info → Run anyway**.
+
+## Keyboard shortcuts
+
+| Shortcut | Action |
+| --- | --- |
+| `Ctrl` + `Alt` + `N` | Show Notes with a new note, from anywhere (you can change this) |
+| `Ctrl` + `N` | New note |
+| `Ctrl` + `S` | Save now |
+| `Ctrl` + `L` | Lock the open protected note |
+| `Esc` | Hide the window |
+
+Double-click the title bar to switch between a slim strip and a normal window.
+
+## Where your data lives
+
+| What | Where |
+| --- | --- |
+| Notes | `Documents\Notes\<Category>\<Title>.<format>` (you can change this in Settings) |
+| Protected notes | Same place, with an extra `.locked` extension. If you forget the password, the note can't be recovered |
+| Settings | `%APPDATA%\Notes\settings.json` |
 
 ## Build from source
 
-Requires the .NET 10 SDK.
+You need the [.NET 10 SDK](https://dotnet.microsoft.com/download).
 
-    dotnet run -c Release --project src/Notes
+```powershell
+dotnet run -c Release --project src/Notes                          # run the app
+powershell -ExecutionPolicy Bypass -File scripts/build-installer.ps1   # build dist\NotesSetup.exe
+powershell -ExecutionPolicy Bypass -File scripts/screenshots.ps1       # regenerate the README screenshots
+```
 
-Build the installer (`dist\NotesSetup.exe`):
+```
+src/Notes/       the app: Avalonia UI, storage, encryption, themes
+src/Installer/   NotesSetup.exe, a per-user installer and uninstaller
+scripts/         build and screenshot scripts
+docs/            README screenshots
+```
 
-    powershell -ExecutionPolicy Bypass -File scripts/build-installer.ps1
-
-Regenerate the exe icon after changing the logo in `Themes.cs`:
-
-    dotnet run --project src/Notes -- --export-icon src/Notes/Assets/app.ico
-
-## Project layout
-
-    src/Notes/        the app (Avalonia UI, storage, encryption, themes)
-    src/Installer/    NotesSetup.exe, a per-user installer and uninstaller
-    scripts/          build scripts
+Built with [Avalonia UI](https://avaloniaui.net/) and the [Inter](https://rsms.me/inter/) typeface.
