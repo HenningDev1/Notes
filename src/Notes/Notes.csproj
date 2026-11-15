@@ -9,7 +9,7 @@
     <AssemblyName>Notes</AssemblyName>
     <RootNamespace>Notes</RootNamespace>
     <InvariantGlobalization>true</InvariantGlobalization>
-    <ApplicationIcon>app.ico</ApplicationIcon>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,12 +17,6 @@
     <PackageReference Include="Avalonia.Desktop" Version="11.3.2" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.2" />
     <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="Installer/**" />
-    <None Remove="Installer/**" />
-    <EmbeddedResource Remove="Installer/**" />
   </ItemGroup>
 
 </Project>

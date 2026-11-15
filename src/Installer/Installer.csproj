@@ -7,7 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>NotesSetup</AssemblyName>
     <RootNamespace>NotesSetup</RootNamespace>
-    <ApplicationIcon>../app.ico</ApplicationIcon>
+    <ApplicationIcon>..\Notes\Assets\app.ico</ApplicationIcon>
     <InvariantGlobalization>true</InvariantGlobalization>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <SelfContained>true</SelfContained>
@@ -17,7 +17,7 @@
 
   <ItemGroup>
     <!-- Produced by build-installer.ps1 -->
-    <EmbeddedResource Include="payload.zip" LogicalName="payload.zip" />
+    <EmbeddedResource Include="payload.zip" LogicalName="payload.zip" Condition="Exists('payload.zip')" />
   </ItemGroup>
 
 </Project>

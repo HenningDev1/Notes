@@ -14,15 +14,29 @@ Quick-capture notes for Windows, built with C# and Avalonia 11.
 - **Themes**: Light/Dark, accent presets or a custom hex color, custom background and text colors, window opacity,
   font (Inter by default) and text size.
 - Deleted notes go to the Windows Recycle Bin.
-- Regenerate the exe icon after changing the logo: `dotnet run -- --export-icon app.ico`
 
-Install (adds Notes to the Start menu and Windows Search, no admin needed):
+## Install
 
-    powershell -ExecutionPolicy Bypass -File build-installer.ps1
-    dist\NotesSetup.exe
-
+Download `NotesSetup.exe` from the Releases page and run it. It installs for your user only (no admin needed),
+adds Notes to the Start menu and Windows Search, and can start it with Windows.
 Uninstall from Settings > Apps. Your notes and settings are kept.
 
-Build and run from source:
+## Build from source
 
-    dotnet run -c Release
+Requires the .NET 10 SDK.
+
+    dotnet run -c Release --project src/Notes
+
+Build the installer (`dist\NotesSetup.exe`):
+
+    powershell -ExecutionPolicy Bypass -File scripts/build-installer.ps1
+
+Regenerate the exe icon after changing the logo in `Themes.cs`:
+
+    dotnet run --project src/Notes -- --export-icon src/Notes/Assets/app.ico
+
+## Project layout
+
+    src/Notes/        the app (Avalonia UI, storage, encryption, themes)
+    src/Installer/    NotesSetup.exe, a per-user installer and uninstaller
+    scripts/          build scripts
